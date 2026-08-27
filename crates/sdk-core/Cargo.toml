@@ -1,0 +1,25 @@
+[package]
+name = "zk-ct-sdk"
+version = "1.0.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["ZKCT Contributors"]
+repository = "https://github.com/SDchzfwq/zk-confidential-transfer-sdk"
+description = "Zero-Knowledge Confidential Transfer SDK for Solana v1 transactions"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+base64 = "0.21"
+hex = "0.4"
+solana-program = "1.18"
+arrayvec = "0.7"
+rand = "0.8"
+
+[dev-dependencies]
+
+[lib]
+name = "zk_ct_sdk"
+path = "src/lib.rs"

@@ -1,0 +1,49 @@
+{
+  "name": "@zk-ct/sdk",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge Confidential Transfer SDK for Solana v1 transactions",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "solana",
+    "zk-proof",
+    "confidential-transfer",
+    "wots",
+    "v1-transaction",
+    "zero-knowledge"
+  ],
+  "author": "ZKCT Contributors",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@solana/kit": "^1.21.0",
+    "@solana/web3.js": "^3.0.0-rc.0",
+    "sha2": "^6.0.0",
+    "elliptic": "^6.5.4",
+    "bigint-crypto-utils": "^1.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@solana/kit": "^8.0.0"
+  }
+}
