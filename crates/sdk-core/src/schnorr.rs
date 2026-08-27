@@ -4,7 +4,7 @@
 
 use sha2::{Digest, Sha256};
 
-/// Minimal Schnorr signature implementation
+/// A scalar value in the field
 #[derive(Clone, Debug)]
 pub struct Scalar([u8; 32]);
 
@@ -24,12 +24,41 @@ impl Scalar {
     }
 }
 
+impl std::ops::Add for &Scalar {
+    type Output = Scalar;
+    
+    fn add(self, other: &Scalar) -> Scalar {
+        let mut result = [0u8; 32];
+        for i in 0..32 {
+            result[i] = self.0[i] ^ other.0[i];
+        }
+        Scalar(result)
+    }
+}
+
+impl std::ops::Mul for &Scalar {
+    type Output = Scalar;
+    
+    fn mul(self, other: &Scalar) -> Scalar {
+        let mut result = [0u8; 32];
+        for i in 0..32 {
+            result[i] = self.0[i].wrapping_mul(other.0[i]);
+        }
+        Scalar(result)
+    }
+}
+
+/// A point on the elliptic curve
 #[derive(Clone, Debug)]
 pub struct Point([u8; 32]);
 
 impl Point {
     pub const fn generator() -> Self {
         Point([0u8; 32])
+    }
+    
+    pub fn to_bytes(&self) -> [u8; 32] {
+        self.0
     }
     
     pub fn hash_to_point(label: &[u8]) -> Self {
@@ -39,21 +68,23 @@ impl Point {
 }
 
 pub fn pedersen_commit(value: &Scalar, randomness: &Scalar) -> Point {
-    let mut result = Point::generator();
-    result.0[0] ^= value.to_bytes()[0];
-    result.0[0] ^= randomness.to_bytes()[0];
-    result
+    let result = Point::generator();
+    let mut bytes = result.to_bytes();
+    bytes[0] ^= value.to_bytes()[0];
+    bytes[0] ^= randomness.to_bytes()[0];
+    Point(bytes)
 }
 
 pub fn schnorr_sign(secret: &Scalar, message: &[u8]) -> (Point, Scalar) {
     let r = Scalar::random();
-    let R = Point::hash_to_point(&[&r.to_bytes(), message].concat());
-    let e = hash_to_scalar(&[
-        &R.to_bytes().concat(),
-        message,
-    ].concat());
-    let s = &(r) + &(hash_scalar_mul(&e, secret));
-    (R, s)
+    let r_bytes = r.to_bytes();
+    let mut combined = Vec::with_capacity(32 + message.len());
+    combined.extend_from_slice(&r_bytes);
+    combined.extend_from_slice(message);
+    let point_r = Point::hash_to_point(&combined);
+    let e = hash_to_scalar(&[&point_r.to_bytes(), &[0u8; 32], message].concat().as_slice());
+    let s = &r + &(&e * secret);
+    (point_r, s)
 }
 
 impl Scalar {
@@ -65,12 +96,4 @@ impl Scalar {
 fn hash_to_scalar(data: &[u8]) -> Scalar {
     let hash = Sha256::digest(data);
     Scalar(hash.into())
-}
-
-fn hash_scalar_mul(a: &Scalar, b: &Scalar) -> Scalar {
-    let mut result = [0u8; 32];
-    for i in 0..32 {
-        result[i] = a.0[i].wrapping_mul(b.0[i]);
-    }
-    Scalar(result)
 }

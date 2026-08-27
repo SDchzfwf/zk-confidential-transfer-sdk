@@ -2,6 +2,7 @@
 
 use crate::{Result, ZkCtError};
 use sha2::{Digest, Sha256};
+use base64::Engine;
 
 /// Serialize a value to hex string
 pub fn to_hex(data: &[u8]) -> String {
@@ -31,11 +32,8 @@ pub fn sha256_hash(data: &[u8]) -> [u8; 32] {
 
 /// Calculate transaction fee estimate
 pub fn estimate_fee(size_bytes: usize, compute_units: u32) -> u64 {
-    // Base fee + size-based component
     let base_fee = 5000u64;
     let size_component = ((size_bytes as f64 / 1024.0).max(1.0) * 1000.0) as u64;
-    
-    // Compute unit cost (micro-lamports)
     let cu_cost = ((compute_units as f64 * 0.001)) as u64;
     
     base_fee + size_component + cu_cost

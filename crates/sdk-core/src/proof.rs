@@ -26,7 +26,7 @@ impl ProofGenerator {
         let commitment = PedersenCommitment::new(self.amount, &randomness);
         
         // Generate KZ1 proof
-        let proof = KZ1Proof::generate(self.amount, randomness, &self.message)?;
+        let proof = KZ1Proof::generate(self.amount, randomness, self.message.clone())?;
         
         Ok((commitment, proof, randomness))
     }
